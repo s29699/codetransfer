@@ -1,0 +1,82 @@
+const { Command } = require('commander');
+const fs = require('fs');
+const program = new Command();
+
+program
+  .name('todos')
+  .description('CLI to some JavaScript string utilities')
+  .version('0.8.0');
+
+program.command('todo')
+  .description('A simple todo cli')
+  .argument('<file>', 'Manage todos')
+  .option('--add <String>', 'add new task')
+  .option('--display', 'Display the tasks')
+  .option('--delete <String>', 'Delete the given task')
+  .option('--dall', 'delete the complete file')
+  .action((file, options) => {
+    
+    if(options.display){
+      fs.readFile(file, 'utf-8',(err, data) =>{
+        if(err){
+          console.lg(err);
+          return;
+        }
+        const lines = data.split("\n");
+        for (const line of lines){
+          console.log(line);
+        }
+      })
+    }
+    
+    if(options.add){
+      const temp = options.add;
+      // console.log(temp);
+      fs.appendFile("a.txt",temp+'\n','utf-8',(err) => {
+        if(err) console.log(err);
+        else {
+          fs.readFile("a.txt",'utf-8',(err, data) => {
+            if(err){
+              console.log(err);
+              return;
+            }
+            const lines = data.split("\n");
+            console.log("Task added succesfully");
+            console.log("Your tasks are:");
+            for (const line of lines){
+              console.log(line);
+            }
+          });
+        }
+      })
+    }
+
+    if(options.delete){
+      const temp = options.delete;
+
+      fs.readFile(file, 'utf-8', (err, data)=>{
+        if(err){
+          console.log(err);
+          return;
+        }
+        const lines = data.split("\n");
+        const updatedLines = lines.filter(line => line.trim() !== temp);
+        const last = updatedLines.join("\n");
+        fs.writeFile(file, last, 'utf-8', ()=>{
+          console.log("Task deleted succesfully");
+        })
+      })
+    }
+
+    if(options.dall){
+      fs.writeFile(file, '', 'utf-8', err =>{
+        if(err){
+          console.log(err);
+          return;
+        }
+        console.log("File deleted succesfully");
+      })
+    }
+  });
+
+program.parse();
