@@ -1,0 +1,28 @@
+// display all tweets on homepage on mounting
+
+const [tweet, setTweet] = useState([])
+
+const getTweets = async () => {
+  const response = fetch(url,{
+    method:"GET"
+  });
+
+  const data = await response.json()
+  setTweets(DataTransfer.post);
+}
+
+useEffect(()=>{
+  getTweets();
+},[])
+
+return(
+  <div>
+    {
+      tweet.map((tw)=>(
+        <div key={tw._id}>
+          {tw.content}
+        </div>
+      ))
+    }
+  </div>
+)
