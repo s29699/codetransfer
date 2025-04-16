@@ -1,0 +1,44 @@
+import { useEffect, useRef, useState } from 'react'
+import './App.css'
+
+function App() {
+  const inputRef = useRef();
+  const [wss, setWss] = useState();
+  const [serverMsg, setServerMsg] = useState([]);
+
+  function sendMessage () {
+    const msg = inputRef.current.value;
+    console.log(msg);
+    wss.send(JSON.stringify({
+      "type":"chat",
+      "payload":{
+          "text":`${msg}`
+      }
+  }) );
+  }
+
+  useEffect(()=> {
+    const ws = new WebSocket("ws://localhost:8080");
+    setWss(ws);
+    ws.send(JSON.stringify({
+      "type":"join",
+       "payload":{
+           "roomId":"red"
+       }
+   }))
+     ws.onmessage = (e) => {
+      // alert(e.data);
+      setServerMsg(e.payload.text);
+    }
+  },[])
+
+  return (
+    <div>
+      <input ref={inputRef} type="text" placeholder='Message' />
+      <button onClick={sendMessage}>Send</button>
+      {serverMsg && <div>{serverMsg}</div>}
+    </div>
+  )
+}
+
+export default App
