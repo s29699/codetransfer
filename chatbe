@@ -1,0 +1,42 @@
+import WebSocket, { WebSocketServer } from 'ws';
+
+const wss = new WebSocketServer({ port: 8080 });
+
+interface User{
+    socket:WebSocket;
+    room: string;
+}
+
+// msgSchema:{
+//     "type":"join/chat",
+//     "payload":{
+//         "message":"" ya roomId
+//     }
+// }
+
+let allSocket: User[] = []
+
+wss.on('connection', function(socket){
+    // console.log("in connection event handler")
+    
+    //jab bhi is socket jo ki (function me mila hai) uspar message aaye toh callBck function call hoga(e event milta hai)
+    socket.on("message", (e) =>{
+        //@ts-ignore
+        const msg = JSON.parse(e);
+        if(msg.type === "join"){
+            allSocket.push({
+                socket,
+                room:msg.payload.roomId
+            })
+        }
+        if(msg.type === "chat"){
+            const curr_room = allSocket.find((x) => x.socket === socket)?.room;
+            allSocket.forEach((x) => {
+                if(x.room === curr_room){
+                    x.socket.send(`${msg.payload.text} : from server`);
+                }
+            })
+        }
+    })
+    
+})
